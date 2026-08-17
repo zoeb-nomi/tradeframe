@@ -1,0 +1,9 @@
+{
+  "id": "{{WF_DAILY_DIGEST_ID}}",
+  "name": "Trading OS v3 — Daily Digest",
+  "active": true,
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "timezone": "Asia/Kolkata", "errorWorkflow": "{{WF_FAILURE_MONITOR_ID}}" },
+  "flow": "Daily 06:30 IST (scheduleTrigger, days interval, triggerAtHour 6 triggerAtMinute 30, workflow tz Asia/Kolkata) -> Get Positions (Digest) (positions_state all rows) -> Get Ledger Rows (trade_ledger all rows, executeOnce) -> Get Brief (Digest) (daily_brief all rows, executeOnce, alwaysOutputData) -> Build Digest (code) -> Send Digest (telegram chat {{TELEGRAM_CHAT_ID}}, HTML, credential {{CREDENTIAL_ID}})",
+  "digest_logic": "Weekend (IST Sat/Sun): send only if any OPEN position has pending_action, else skip silently. Sections: (1) Brain brief - latest daily_brief row if created_at within 24h, else 'No brain brief in last 24h'; (2) per OPEN position: price, hard_stop, % distance, 20d high, TP; earnings flag when next_earnings within 5 days ('tight-stop rules apply'); pending_action with age - >20h flagged 'STILL PENDING - nag'; (3) cash reminder line (no API feed); (4) trade_ledger events from last 24h or 'No ledger events'.",
+  "_note": "Condensed export 2026-08-11 (instance public API disabled). Live workflow is source of truth: your n8n instance, workflow {{WF_DAILY_DIGEST_ID}}."
+}

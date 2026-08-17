@@ -1,0 +1,9 @@
+{
+  "id": "{{WF_STATE_EXPORT_ID}}",
+  "name": "MCP — State Export",
+  "active": true,
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "timezone": "Asia/Kolkata", "errorWorkflow": "{{WF_FAILURE_MONITOR_ID}}" },
+  "flow": "Two triggers converge on Check Access (code: webhook requests must carry query token; manual/MCP runs pass) and GET /state-export (webhook GET path state-export, responseMode lastNode). Authorized? (if) -> TRUE: Get Positions (State) (positions_state all, alwaysOutputData) -> Get Ledger (State) (trade_ledger all, executeOnce, alwaysOutputData) -> Get Briefs (State) (daily_brief all, executeOnce, alwaysOutputData) -> Assemble State (code: { positions, ledger_recent [30d], latest_brief|null, generated_at }); FALSE: Unauthorized (set {error:'unauthorized'}).",
+  "usage": "MCP: execute_workflow (manual, no inputs), read the Assemble State node output from the execution. Fallback: GET https://{{N8N_HOST}}/webhook/state-export?token={{BRIDGE_TOKEN}}. Token lives in the Check Access code node.",
+  "_note": "Condensed export 2026-08-11. Live workflow is source of truth: your n8n instance, workflow {{WF_STATE_EXPORT_ID}}. Token intentionally not committed."
+}

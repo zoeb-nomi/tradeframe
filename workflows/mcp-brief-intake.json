@@ -1,0 +1,9 @@
+{
+  "id": "{{WF_BRIEF_INTAKE_ID}}",
+  "name": "MCP — Brief Intake",
+  "active": true,
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "timezone": "Asia/Kolkata", "errorWorkflow": "{{WF_FAILURE_MONITOR_ID}}" },
+  "flow": "GET /brief-intake (webhook GET path brief-intake, responseMode responseNode) -> Parse Intake (code: token check; date YYYY-MM-DD default today IST; brief_text/brief max 1500 chars; author default claude; earnings_updates array in body OR query earnings=SYM:YYYY-MM-DD,SYM:YYYY-MM-DD) -> Intake OK? (if) -> TRUE: Upsert Brief (dataTable upsert daily_brief {{TABLE_DAILY_BRIEF_ID}} by date: date, brief_text, author, created_at=now) -> Respond OK (respondToWebhook json {ok,date,brief_saved,earnings_updates}) -> Expand Earnings (code: one item per valid earnings update) -> Update next_earnings (dataTable update positions_state {{TABLE_POSITIONS_STATE_ID}} by symbol: next_earnings, last_updated); FALSE: Respond Error (401 {ok:false,error}).",
+  "usage": "MCP: execute_workflow with webhook input {query:{token,date,brief,author,earnings}} or body {token,date,brief_text,author,earnings_updates:[{symbol,next_earnings}]}. Fallback: GET https://{{N8N_HOST}}/webhook/brief-intake?token={{BRIDGE_TOKEN}} This is how the daily Claude brain writes the digest brief and maintains earnings dates (TwelveData /earnings is paywalled on free tier).",
+  "_note": "Condensed export 2026-08-11. Live workflow is source of truth: your n8n instance, workflow {{WF_BRIEF_INTAKE_ID}}. Token intentionally not committed."
+}

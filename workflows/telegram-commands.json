@@ -1,0 +1,15 @@
+{
+  "id": "{{WF_TELEGRAM_COMMANDS_ID}}",
+  "name": "Trading OS v3 — Telegram Commands",
+  "active": true,
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "timezone": "Asia/Kolkata", "errorWorkflow": "{{WF_FAILURE_MONITOR_ID}}" },
+  "flow": "Telegram Command In (telegramTrigger, updates=[message], chatIds={{TELEGRAM_CHAT_ID}}, credential {{CREDENTIAL_ID}} / {{TELEGRAM_ALERTS_BOT}}) -> Parse Command (code: guard chat id; routes done/status/chatid/ask/help; done parses SYMBOL and optional PRICE; ask captures question) -> Route Command (switch on $json.route, fallback=help) -> branches:",
+  "branches": {
+    "done": "Get Position Row (dataTable get positions_state by symbol, alwaysOutputData) -> Compute Done Update (code: newStop from message PRICE or from pending_action 'raise stop to X'; errors if neither) -> Can Apply? (if ok) -> TRUE: Apply Stop Update (dataTable update: hard_stop=newStop, pending_action=null, pending_since=null, last_updated=now) -> Reply Done OK; FALSE: Reply Done Error",
+    "status": "Get All Positions (status eq OPEN, returnAll) -> Build Status Reply (code: symbol, price, stop, % distance, TP, pending) -> Reply Status",
+    "chatid": "Reply Chat ID (echo fallback, replaces old Echo-1 workflow)",
+    "ask": "Get Positions (Ask) (all rows) -> Get Ledger (Ask) (trade_ledger all rows, executeOnce) -> Build Ask Prompt (code: JSON context = positions + ledger last 14d + staleness note, plus QUESTION) -> Ask Claude (@n8n/n8n-nodes-langchain.anthropic text/message, model claude-sonnet-5, credential {{CREDENTIAL_ID}}, maxTokens 2000 [sonnet-5 rejects temperature], system prompt = Trading OS judgment layer: 3 layers Core/Amplifier/Tactical, SL ratchet never lowered, thesis-driven exits, no adding into binary events, no tight stops through earnings, <300 words, plain text, admit no web access) -> Format Ask Reply (code: merged_response/content extraction, 3900-char cap) -> Reply Ask",
+    "help": "Reply Help (command list incl. ask)"
+  },
+  "_note": "Condensed export 2026-08-11 (instance public API disabled). Live workflow is source of truth: your n8n instance, workflow {{WF_TELEGRAM_COMMANDS_ID}}. All Telegram nodes chat {{TELEGRAM_CHAT_ID}}, credential by ID only."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "{{WF_FAILURE_MONITOR_ID}}",
+  "name": "Global Workflow Failure Monitor",
+  "active": true,
+  "description": "Global error handler: any workflow with settings.errorWorkflow pointed here sends a failure alert to Telegram chat {{TELEGRAM_CHAT_ID}} via {{TELEGRAM_MONITORING_BOT}} (credential Telegram account 2). Fires for production executions only.",
+  "settings": { "executionOrder": "v1", "binaryMode": "separate", "timeSavedMode": "fixed", "callerPolicy": "workflowsFromSameOwner", "availableInMCP": true, "timezone": "Asia/Kolkata" },
+  "connections": { "Error Trigger": { "main": [[{ "node": "Alert Monitoring Bot", "type": "main", "index": 0 }]] } },
+  "nodes": [
+    { "parameters": {}, "id": "fbc9ca4a-ff60-4c3e-ab82-6edc0908304c", "name": "Error Trigger", "type": "n8n-nodes-base.errorTrigger", "typeVersion": 1, "position": [192, -160] },
+    { "parameters": { "chatId": "{{TELEGRAM_CHAT_ID}}", "text": "=⚠️ <b>Workflow failed — {{ $json.workflow?.name ?? 'unknown workflow' }}</b>\n\nFailed node: {{ $json.execution?.error?.node?.name ?? $json.execution?.lastNodeExecuted ?? 'unknown' }}\nError: {{ $json.execution?.error?.message ?? 'unknown error' }}\nExecution: {{ $json.execution?.url ?? 'https://{{N8N_HOST}}/workflow/' + ($json.workflow?.id ?? '') }}\nTime: {{ $now.setZone('Asia/Kolkata').toFormat('d LLL yyyy, h:mm a') }} IST", "additionalFields": { "parse_mode": "HTML", "appendAttribution": false, "disable_web_page_preview": true }, "resource": "message", "operation": "sendMessage" }, "id": "d45b9582-5fb3-4a5c-9243-dde368720c09", "name": "Alert Monitoring Bot", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [416, -160], "webhookId": "{{WEBHOOK_ID}}", "credentials": { "telegramApi": { "id": "{{CREDENTIAL_ID}}", "name": "Telegram account 2" } } }
+  ],
+  "_note": "Exported 2026-08-11 via MCP get_workflow_details. Credentials referenced by ID only; no secrets. The n8n API strips credential refs from dumps - the credentials block on the Telegram node was re-added from known bindings."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "{{WF_REPO_COMMIT_ID}}",
+  "name": "MCP — Repo Commit",
+  "active": true,
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "timezone": "Asia/Kolkata", "errorWorkflow": "{{WF_FAILURE_MONITOR_ID}}" },
+  "flow": "POST /repo-commit (webhook POST path repo-commit, responseMode lastNode) -> Validate Commit Input (code: token check, path/content/message required, path traversal blocked) -> Input OK? (if) -> TRUE: Get Existing File (httpRequest GET api.github.com/repos/{{GITHUB_OWNER}}/{{GITHUB_REPO}}/contents/{path}?ref=main, githubApi credential {{CREDENTIAL_ID}}, neverError) -> Build Commit (code: base64 content, sha included when file exists) -> Put File (httpRequest PUT contents API, branch main) -> Commit Result (code: {ok, path, commit_sha, content_sha, html_url}); FALSE: Invalid Request.",
+  "usage": "MCP: execute_workflow with webhook input body {token, path, content, message}. Fallback: POST https://{{N8N_HOST}}/webhook/repo-commit. Used by Claude scheduled tasks to commit monthly reports (reports/YYYY-MM.md) and doc updates.",
+  "_note": "Condensed export 2026-08-11. Live workflow is source of truth: your n8n instance, workflow {{WF_REPO_COMMIT_ID}}. Token intentionally not committed."
+}
